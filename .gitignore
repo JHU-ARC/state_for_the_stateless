@@ -1,0 +1,10 @@
+./app
+./enclave.signed.so
+./enclave.so
+*.o
+
+*.so
+app-test
+app-master
+app-slave
+app-generic

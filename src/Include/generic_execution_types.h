@@ -1,0 +1,124 @@
+#ifndef _GENERIC_EXECUTION_TYPES_H_
+#define _GENERIC_EXECUTION_TYPES_H_
+
+#include <stdint.h>
+#include <openssl/sha.h>
+
+#define MINIMUM_BLOCK_DIFFICULTY 0
+#define DEFAULT_TIP .02
+
+#define LONG_TERM_KEY_LENGTH 16 
+typedef uint8_t long_term_key_t[LONG_TERM_KEY_LENGTH];
+
+#define SEALED_DATA_LENGTH 576 
+
+#define COMMIT_RANDOMNESS_LENGTH 32
+typedef uint8_t commitment_randomness_t[COMMIT_RANDOMNESS_LENGTH];
+
+#define COMMIT_LENGTH SHA256_DIGEST_LENGTH
+typedef uint8_t commitment_t[COMMIT_LENGTH];
+
+#define STEP_OUTPUT_SIZE 1024
+typedef uint8_t step_output_t[STEP_OUTPUT_SIZE];
+
+#define MAX_PUBLIC_OUTPUT_LENGTH 128
+typedef uint8_t public_output_t[MAX_PUBLIC_OUTPUT_LENGTH];
+
+typedef struct input_from_ledger_t {
+  commitment_t input_commitment;
+  public_output_t public_output;
+} input_from_ledger_t;
+
+#define STATE_CIPHERTEXT_KEY_LENGTH 16 
+typedef uint8_t state_ciphertext_key_t[STATE_CIPHERTEXT_KEY_LENGTH];
+
+#define STATE_CIPHERTEXT_IV_LENGTH 12
+typedef uint8_t state_ciphertext_iv_t[STATE_CIPHERTEXT_IV_LENGTH];
+
+#define STATE_CIPHERTEXT_AAD_LENGTH 8
+typedef uint8_t state_ciphertext_aad_t[STATE_CIPHERTEXT_AAD_LENGTH];
+
+#define STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH SHA256_DIGEST_LENGTH 
+typedef uint8_t state_ciphertext_program_hash_t[STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH];
+
+#define STATE_CIPHERTEXT_PUBLIC_OUTPUT_HASH_LENGTH SHA256_DIGEST_LENGTH 
+typedef uint8_t state_ciphertext_public_output_hash_t[STATE_CIPHERTEXT_PUBLIC_OUTPUT_HASH_LENGTH];
+
+#define STATE_CIPHERTEXT_BODY_LENGTH 2048
+typedef uint8_t state_ciphertext_state_string_t[STATE_CIPHERTEXT_BODY_LENGTH];
+
+typedef struct state_ciphertext_body_t {
+  state_ciphertext_program_hash_t program_hash;
+  state_ciphertext_public_output_hash_t public_output_hash;
+  int counter;
+  state_ciphertext_state_string_t state_string;
+} state_ciphertext_body_t;
+
+#define STATE_CIPHERTEXT_BODY_TOTAL_LENGTH STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH + STATE_CIPHERTEXT_PUBLIC_OUTPUT_HASH_LENGTH + sizeof(int) + STATE_CIPHERTEXT_BODY_LENGTH
+
+#define STATE_CIPHERTEXT_PUBLIC_OUTPUT_HASH_OFFSET STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH 
+
+#define STATE_CIPHERTEXT_COUNTER_OFFSET STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH + STATE_CIPHERTEXT_PUBLIC_OUTPUT_HASH_LENGTH
+
+#define STATE_CIPHERTEXT_STATE_STRING_OFFSET STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH + STATE_CIPHERTEXT_PUBLIC_OUTPUT_HASH_LENGTH + sizeof(int) 
+
+#define STATE_CIPHERTEXT_TAG_LENGTH 16
+typedef uint8_t state_ciphertext_tag_t[STATE_CIPHERTEXT_TAG_LENGTH];
+
+#define STATE_CIPHERTEXT_TOTAL_LENGTH STATE_CIPHERTEXT_IV_LENGTH + STATE_CIPHERTEXT_AAD_LENGTH + STATE_CIPHERTEXT_BODY_TOTAL_LENGTH + STATE_CIPHERTEXT_PROGRAM_HASH_LENGTH + STATE_CIPHERTEXT_IV_LENGTH
+
+typedef struct state_ciphertext_t {
+  state_ciphertext_iv_t iv;
+  state_ciphertext_aad_t aad;
+  state_ciphertext_tag_t tag;
+  state_ciphertext_body_t ciphertext;
+} state_ciphertext_t;
+
+#define STATE_PLAINTEXT 2048
+typedef uint8_t state_plaintext_t[STATE_CIPHERTEXT_BODY_LENGTH];
+
+#define ROUND_KEY_PREFIX_LENGTH 9
+#define RANDOM_COINS_PREFIX_LENGTH 12
+
+#define RANDOM_COINS_LENGTH 16 
+typedef uint8_t random_coins_t[RANDOM_COINS_LENGTH];
+
+typedef int key_load_mode_t;
+
+#define USE_DEBUG_KEY 1
+#define LOAD_EXTERNAL_KEY 2
+#define GENERATE_NEW_KEY 3
+
+#define RETURN_CODE_SUCCESS 1
+
+#define RETURN_CODE_COMMITMENT_MISMATCH 101
+#define RETURN_CODE_PROGRAM_HASH_MISMATCH 102
+
+#define RETURN_CODE_STATE_DECRYPTION_FAILED 201
+#define RETURN_CODE_STATE_ENCRYPTION_FAILED 202
+
+#define RETURN_CODE_KEY_GEN_FAILED 301
+#define RETURN_CODE_SEALING_FAILURE 302
+
+#define RETURN_CODE_ALREADY_INITIALIZED 401
+#define RETURN_CODE_UNINITIALIZED 402
+#define RETURN_CODE_PARAMETER_SANITIZATION_FAILED_PROGRAM_CODE 403
+#define RETURN_CODE_PARAMETER_SANITIZATION_FAILED_STEP_INPUT 404
+#define RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY 405
+#define RETURN_CODE_DUKTAPE_ILLEGAL_RETURN 406
+
+#define RETURN_CODE_BLOCKCHAIN_BLOCK_DECODE_FAILURE 501
+#define RETURN_CODE_BLOCKCHAIN_BLOCKCHAIN_VERIFICATION_FAILURE 502
+#define RETURN_CODE_NO_PROPER_TRANSACTION_FOUND 505
+#define RETURN_CODE_COUNTER_MISMATCH 506
+#define RETURN_CODE_WRONG_PUBLIC_OUTPUT 507
+
+  // Return Codes for CT
+#define RETURN_CODE_STH_SIG_INVALID 601
+#define RETURN_CODE_MERKLE_TREE_INVALID 602
+#define RETURN_CODE_WRONG_DATA_IN_CERTIFICATE 603
+
+#define RETURN_CODE_DUK_CTX_CREATE_FAILURE 701
+#define RETURN_CODE_DUK_EXECUTION_FAILURE 702
+
+#endif
