@@ -121,7 +121,7 @@ void ecall_initial_step_blockchain(
     return;
   }
 
-  check_commitment( counter, next_step_input, next_step_input_size, commitment_randomness, input_from_ledger, return_code);
+  check_initial_commitment( counter, next_step_input, next_step_input_size, commitment_randomness, input_from_ledger, return_code);
   if( *return_code != RETURN_CODE_SUCCESS ) return;
 
   generate_random_coins(current_transaction_hash, &random_coins, return_code);
@@ -175,7 +175,7 @@ void ecall_next_step_blockchain(
   verify_blockchain_proof( input_from_ledger, proof_struct, current_transaction_hash, previous_transaction_hash, &local_public_output, return_code);
   if( *return_code != RETURN_CODE_SUCCESS ) return;
 
-  check_commitment( counter, next_step_input, next_step_input_size, commitment_randomness, input_from_ledger, return_code);
+  check_commitment( counter, next_step_input, next_step_input_size, previous_state, commitment_randomness, input_from_ledger, return_code);
   if( *return_code != RETURN_CODE_SUCCESS ) return;
 
   decrypt_previous_state_and_verify_program_hash( previous_state, previous_transaction_hash, counter, javascript_program, javascript_program_size, &local_public_output, plaintext_previous_state, return_code);
@@ -195,7 +195,7 @@ void ecall_next_step_blockchain(
 }
 
 // UTILITY FUNCTIONS
-void check_commitment(unsigned int counter, uint8_t* next_step_input, size_t next_step_input_size, commitment_randomness_t* commitment_randomness, input_from_ledger_t* input_from_ledger, int* return_code)
+void check_initial_commitment(unsigned int counter, uint8_t* next_step_input, size_t next_step_input_size, commitment_randomness_t* commitment_randomness, input_from_ledger_t* input_from_ledger, int* return_code)
 {
 
   sgx_sha256_hash_t input_commitment;
@@ -216,6 +216,72 @@ void check_commitment(unsigned int counter, uint8_t* next_step_input, size_t nex
   }
 
   ret = sgx_sha256_update(next_step_input, next_step_input_size, sha_handle);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  ret = sgx_sha256_update((uint8_t*) commitment_randomness, COMMIT_RANDOMNESS_LENGTH, sha_handle);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  ret = sgx_sha256_get_hash(sha_handle, &input_commitment);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  ret = sgx_sha256_close(sha_handle);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  if( memcmp(input_commitment, &(input_from_ledger->input_commitment), COMMIT_LENGTH) != 0 )
+  {
+    *return_code = RETURN_CODE_COMMITMENT_MISMATCH;
+    return;
+  }
+
+  *return_code = RETURN_CODE_SUCCESS;
+  return;
+
+}
+
+void check_commitment(unsigned int counter, uint8_t* next_step_input, size_t next_step_input_size, state_ciphertext_t* previous_state, commitment_randomness_t* commitment_randomness, input_from_ledger_t* input_from_ledger, int* return_code)
+{
+
+  sgx_sha256_hash_t input_commitment;
+  sgx_sha_state_handle_t sha_handle;
+
+  sgx_status_t ret = sgx_sha256_init(&sha_handle);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  ret = sgx_sha256_update((uint8_t*) &counter, sizeof(int), sha_handle);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  ret = sgx_sha256_update(next_step_input, next_step_input_size, sha_handle);
+  if (ret != SGX_SUCCESS)
+  {
+    *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
+    return;
+  }
+
+  ret = sgx_sha256_update((uint8_t*) previous_state, sizeof(state_ciphertext_t), sha_handle);
   if (ret != SGX_SUCCESS)
   {
     *return_code = RETURN_CODE_ERROR_FROM_INTERNAL_LIBRARY;
