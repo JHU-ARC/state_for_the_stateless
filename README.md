@@ -40,7 +40,21 @@ Note that SGX doesn't have direct access to trusted time and calling for javascr
 - Please see [Obscuro Project](https://github.com/BitObscuro/Obscuro) for how bitcoin has been integrated into SGX
 - Please see [Luckychain Project](https://github.com/luckychain) for an integration of duktape into SGX
 
+## WARNING
+
+WARNING
+THIS IS DEVELOPMENT SOFTWARE. WE DON'T CERTIFY IT FOR PRODUCTION USE. WE ARE RELEASING THIS DEV VERSION FOR THE COMMUNITY TO EXAMINE, TEST AND (PROBABLY) BREAK. IF YOU SEE SOMETHING, SAY SOMETHING! SEE HOW TO CONTRIBUTE FOR A LIST OF WAYS YOU CAN HELP US.
+
+WARNING WARNING
+NO, SERIOUSLY. THE ABOVE WARNING IS NOT JUST BOILERPLATE. THIS REALLY IS DEVELOPMENT CODE AND WE'RE STILL ACTIVELY LOOKING FOR THE THINGS WE'VE INEVITABLY DONE WRONG. PLEASE DON'T BE SURPRISED IF YOU FIND OUT WE MISSED SOMETHING FUNDAMENTAL. WE WILL BE TESTING AND IMPROVING IT OVER THE COMING WEEKS.
+
+WARNING WARNING WARNING
+WE'RE NOT JOKING. DON'T MAKE US TAKE AWAY THE MAKEFILE
+
+WARNING WARNING WARNING WARNING 
+YES THIS IS THE SAME WARNING AS libzerocoin.  PLEASE PAY MORE ATTENTION TO THIS WARNING THAN PEOPLE DID TO IT WHEN IT WAS PART OF libzerocoin
+
 ## Contact
 
-Please remember this is a research implementation and should not be used for deploying real systems.  For questions, please contact gkaptchuk (at) jhu (dot) edu.
+SERIOUSLY, THIS IS RESEARCH CODE AND SHOULD NOT BE DEPLOYED!  For questions, please contact gkaptchuk (at) jhu (dot) edu.
 
