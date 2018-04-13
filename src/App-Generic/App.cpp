@@ -135,6 +135,7 @@ int SGX_CDECL main(int argc, char *argv[]){
       SHA256_Update(&sha256, next_step_input, next_step_input_size);
       if (counter != 0)
         SHA256_Update(&sha256, &previous_state, sizeof(state_ciphertext_t)); 
+      SHA256_Update(&sha256, program_code, program_code_size+1); 
       SHA256_Update(&sha256, commitment_randomness, COMMIT_RANDOMNESS_LENGTH);
       SHA256_Final(current_hash, &sha256);
       std::string next_block_hash = submit_transaction(input_tx, address, hexStr(current_hash, COMMIT_LENGTH), tx_value, hexStr(public_output, MAX_PUBLIC_OUTPUT_LENGTH));
